@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SwiftWash Laundry - Premium Quick-Laundry Ecosystem</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Leaflet Map CSS/JS for internal phone map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Background SVG Scroll-Linked Trail -->
+    <svg id="scroll-trail-svg">
+        <defs>
+            <filter id="glow-cyan" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="8" result="blur1" />
+                <feGaussianBlur stdDeviation="15" result="blur2" />
+                <feMerge>
+                    <feMergeNode in="blur2" />
+                    <feMergeNode in="blur1" />
+                    <feMergeNode in="SourceGraphic" />
+                </feMerge>
+            </filter>
+        </defs>
+        <path id="scroll-trail-path" fill="none" stroke="url(#trail-grad)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow-cyan)" />
+        <linearGradient id="trail-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#2397eb" />
+            <stop offset="25%" stop-color="#4aae5a" />
+            <stop offset="50%" stop-color="#2397eb" />
+            <stop offset="75%" stop-color="#4aae5a" />
+            <stop offset="100%" stop-color="#2397eb" />
+        </linearGradient>
+    </svg>
+
+    <!-- Full Screen Interactive FX Canvas (Lusion Fluid Cursor) -->
+    <canvas id="fx-canvas"></canvas>
+
+    <!-- Interactive Custom Cursor -->
+    <div id="custom-cursor"></div>
+
+    <!-- Theme Toggle Button -->
+    <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle Theme">
+        <i class="fa-solid fa-moon"></i>
+    </button>
+
+    <!-- Pinned 9:16 Phone Mockup Container -->
+    <div id="phone-container" class="phone-mockup">
+        <div class="phone-tilt-wrapper">
+            <div class="phone-bezel">
+                <div class="phone-notch"></div>
+                <div class="phone-screen">
+                <!-- Dynamic Screen Contents -->
+                <div id="screen-hero" class="screen-state active">
+                    <div class="app-header">
+                        <span class="app-logo">
+                            <img src="./s_logo.png" alt="S Logo" style="width: 100%; height: 100%; object-fit: contain;">
+                        </span>
+                        <span class="app-title"><span style="color: var(--neon-cyan);">Swift</span><span style="color: var(--neon-green);">Wash</span></span>
+                    </div>
+                    <div class="app-hero">
+                        <h2>Laundry in<br><span class="highlight">10 Minutes*</span></h2>
+                        <p>Quick laundry with 2 hours turnaround</p>
+                    </div>
+                    <div class="app-card">
+                        <div class="input-mock">Enter mobile number</div>
+                        <button class="app-btn">Continue</button>
+                    </div>
+                </div>
+
+                <div id="screen-dispatch" class="screen-state">
+                    <div class="status-card" style="height: 25%; padding-top: 0; padding-bottom: 10px;">
+                        <div class="driver-info">
+                            <i class="fa-solid fa-location-dot" style="color: var(--neon-cyan);"></i>
+                            <div>
+                                <strong>SwiftWash Store</strong>
+                                <span style="color: var(--neon-cyan); font-weight: 700; font-size: 11px;">Available 2.0 km away</span>
+                                <span class="facility-status" style="font-size: 8px; opacity: 0.5; display: block; font-family: var(--font-mono); margin-top: 2px;">NEURAL DISPATCH ACTIVE</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="dispatch-map" class="map-viewport" style="height: 75%;"></div>
+                </div>
+
+                <div id="screen-pickup" class="screen-state">
+                    <div id="pickup-map" class="map-viewport"></div>
+                    <div class="status-card">
+                        <div class="driver-info">
+                            <i class="fa-solid fa-truck-ramp-box"></i>
+                            <div>
+                                <strong>Ramesh (Driver)</strong>
+                                <span>Left for Pickup</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="screen-wash" class="screen-state">
+                    <div class="wash-status-container">
+                        <h3>Cleaning Cycle</h3>
+                        <div class="drum-container">
+                            <div class="drum-bezel"></div>
+                            <div class="drum-window">
+                                <div class="drum-water"></div>
+                                <div class="drum-clothes">
+                                    <i class="fa-solid fa-shirt item-1"></i>
+                                    <i class="fa-solid fa-socks item-2"></i>
+                                    <i class="fa-solid fa-socks item-3"></i>
+                                </div>
+                                <div class="drum-bubbles">
+                                    <div class="bubble b1"></div>
+                                    <div class="bubble b2"></div>
+                                    <div class="bubble b3"></div>
+                                    <div class="bubble b4"></div>
+                                    <div class="bubble b5"></div>
+                                </div>
+                            </div>
+                            <div class="percentage-overlay">75%</div>
+                        </div>
+                        <p><i class="fa-solid fa-soap"></i> Washing &amp; Drying</p>
+                    </div>
+                </div>
+
+                <div id="screen-quality" class="screen-state">
+                    <div class="wash-status-container">
+                        <h3 style="font-size: 18px; margin-bottom: 20px;">Sorting &amp; Quality</h3>
+                        <div class="quality-checklist" style="width: 100%; display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+                            <div class="check-item" style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 12px; border-radius: 8px;">
+                                <i class="fa-solid fa-circle-check" style="color: var(--neon-green);"></i>
+                                <span style="font-size: 12px;">Fabric Sorting Complete</span>
+                            </div>
+                            <div class="check-item" style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 12px; border-radius: 8px;">
+                                <i class="fa-solid fa-circle-check" style="color: var(--neon-green);"></i>
+                                <span style="font-size: 12px;">Stain &amp; Wash Audit Passed</span>
+                            </div>
+                            <div class="check-item" style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 12px; border-radius: 8px;">
+                                <i class="fa-solid fa-circle-check" style="color: var(--neon-green);"></i>
+                                <span style="font-size: 12px;">Precise Steam Folding</span>
+                            </div>
+                            <div class="check-item" style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 12px; border-radius: 8px;">
+                                <i class="fa-solid fa-circle-notch fa-spin" style="color: var(--neon-cyan);"></i>
+                                <span style="font-size: 12px;">Premium Eco-Packing...</span>
+                            </div>
+                        </div>
+                        <p style="font-size: 12px; color: #64748b;"><i class="fa-solid fa-square-poll-vertical"></i> Verification Pending</p>
+                    </div>
+                </div>
+
+                <div id="screen-sorting" class="screen-state">
+                    <div class="wash-status-container">
+                        <h3 style="font-size: 18px; margin-bottom: 20px;">Fabric Sorting</h3>
+                        <div class="quality-checklist" style="width: 100%; display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+                            <div class="check-item" style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 12px; border-radius: 8px;">
+                                <i class="fa-solid fa-circle-check" style="color: var(--neon-green);"></i>
+                                <span style="font-size: 12px;">Garments Inspected</span>
+                            </div>
+                            <div class="check-item" style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 12px; border-radius: 8px;">
+                                <i class="fa-solid fa-circle-check" style="color: var(--neon-green);"></i>
+                                <span style="font-size: 12px;">Whites &amp; Colors Separated</span>
+                            </div>
+                            <div class="check-item" style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 12px; border-radius: 8px;">
+                                <i class="fa-solid fa-circle-notch fa-spin" style="color: var(--neon-cyan);"></i>
+                                <span style="font-size: 12px;">Delicate Fabrics Sorting...</span>
+                            </div>
+                        </div>
+                        <p style="font-size: 12px; color: #64748b;"><i class="fa-solid fa-square-poll-vertical"></i> Sorting active</p>
+                    </div>
+                </div>
+
+                <div id="screen-ironing" class="screen-state">
+                    <div class="wash-status-container">
+                        <h3 style="font-size: 18px; margin-bottom: 20px;">Ironing &amp; Folding</h3>
+                        <div class="quality-checklist" style="width: 100%; display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+                            <div class="check-item" style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 12px; border-radius: 8px;">
+                                <i class="fa-solid fa-circle-check" style="color: var(--neon-green);"></i>
+                                <span style="font-size: 12px;">Steam Pressing Active</span>
+                            </div>
+                            <div class="check-item" style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 12px; border-radius: 8px;">
+                                <i class="fa-solid fa-circle-check" style="color: var(--neon-green);"></i>
+                                <span style="font-size: 12px;">Crease Alignment OK</span>
+                            </div>
+                            <div class="check-item" style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 12px; border-radius: 8px;">
+                                <i class="fa-solid fa-circle-notch fa-spin" style="color: var(--neon-cyan);"></i>
+                                <span style="font-size: 12px;">Meticulous Folding...</span>
+                              </div>
+                          </div>
+                          <p style="font-size: 12px; color: #64748b;"><i class="fa-solid fa-temperature-three-quarters"></i> 140&deg;C steam pressing</p>
+                      </div>
+                  </div>
+
+                <div id="screen-packing" class="screen-state">
+                    <div class="wash-status-container">
+                        <h3 style="font-size: 18px; margin-bottom: 20px;">Eco Packing</h3>
+                        <div class="quality-checklist" style="width: 100%; display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+                            <div class="check-item" style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 12px; border-radius: 8px;">
+                                <i class="fa-solid fa-circle-check" style="color: var(--neon-green);"></i>
+                                <span style="font-size: 12px;">Hanger Tags Attached</span>
+                            </div>
+                            <div class="check-item" style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 12px; border-radius: 8px;">
+                                <i class="fa-solid fa-circle-check" style="color: var(--neon-green);"></i>
+                                <span style="font-size: 12px;">Eco-friendly Wrapping</span>
+                            </div>
+                            <div class="check-item" style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 12px; border-radius: 8px;">
+                                <i class="fa-solid fa-circle-notch fa-spin" style="color: var(--neon-cyan);"></i>
+                                <span style="font-size: 12px;">Dust Shield Sealing...</span>
+                            </div>
+                        </div>
+                        <p style="font-size: 12px; color: #64748b;"><i class="fa-solid fa-box-open"></i> Packed for delivery</p>
+                    </div>
+                </div>
+
+                <div id="screen-transit" class="screen-state">
+                    <div id="delivery-map" class="map-viewport"></div>
+                    <div class="status-card">
+                        <div class="driver-info">
+                            <i class="fa-solid fa-motorcycle" style="color: var(--neon-cyan);"></i>
+                            <div>
+                                <strong>Amit (Driver)</strong>
+                                <span>Out for Delivery</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="screen-delivered" class="screen-state">
+                    <canvas id="confetti-canvas"></canvas>
+                    <div class="delivery-container">
+                        <div class="success-tick">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                        <h3>Delivered!</h3>
+                        <p>Your garments are fresh &amp; folded</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- Main Layout Grid -->
+    <div class="layout-container">
+        
+        <!-- Hero Section -->
+        <section id="hero" class="grid-section">
+            <div class="grid-cell main-header">
+                <span class="section-tag">SW-01 // LAUNDRY ECOSYSTEM</span>
+                <h1 class="kinetic-text brand-title">SwiftWash</h1>
+                <p class="lead-text">Experience the world's most advanced quick-laundry network. Hand over your garments in 10 minutes, track the entire lifecycle down to the second.</p>
+            </div>
+            <div class="grid-cell empty-hero-right">
+                <!-- Anchor zone for phone (top-right) -->
+                <div class="phone-anchor" id="anchor-hero"></div>
+            </div>
+        </section>
+
+        <!-- Section 1: Dispatch -->
+        <section id="section-dispatch" class="grid-section">
+            <div class="grid-cell phone-zone">
+                <!-- Anchor zone for phone (middle-left) -->
+                <div class="phone-anchor" id="anchor-dispatch"></div>
+            </div>
+            <div class="grid-cell content-zone">
+                <span class="section-tag">STEP 01 / MATCHING</span>
+                <h2 class="kinetic-text">Instant Dispatch</h2>
+                <p>Once you place your order, our neural routing engine matches your pickup location with the closest available store manager and delivery driver under 60 seconds.</p>
+            </div>
+        </section>
+
+        <!-- Section 2: Real-time Tracker -->
+        <section id="section-pickup-track" class="grid-section">
+            <div class="grid-cell content-zone">
+                <span class="section-tag">STEP 02 / TRACKING</span>
+                <h2 class="kinetic-text">Left for Pickup</h2>
+                <p>Track your driver's real-time coordinate updates on integrated maps. Receive foreground push notifications with zero delay as the driver reaches your doorstep.</p>
+            </div>
+            <div class="grid-cell phone-zone">
+                <!-- Anchor zone for phone (right) -->
+                <div class="phone-anchor" id="anchor-pickup"></div>
+            </div>
+        </section>
+
+        <!-- Section 3: Processing -->
+        <section id="section-processing" class="grid-section">
+            <div class="grid-cell phone-zone">
+                <!-- Anchor zone for phone (left) -->
+                <div class="phone-anchor" id="anchor-wash"></div>
+            </div>
+            <div class="grid-cell content-zone">
+                <span class="section-tag">STEP 03 / PROCESS</span>
+                <h2 class="kinetic-text">Washing &amp; Care</h2>
+                <p>Garments are sorted, treated, and cleaned using premium wash cycles. Monitor the temperature, detergents, and drying metrics inside the customer dashboard.</p>
+            </div>
+        </section>
+
+        <!-- Section 4: Sorting -->
+        <section id="section-sorting" class="grid-section">
+            <div class="grid-cell content-zone">
+                <span class="section-tag">STEP 04 / SORTING</span>
+                <h2 class="kinetic-text">Fabric Sorting</h2>
+                <p>Our team meticulously separates your whites, colors, and delicate fabrics to ensure optimal washing conditions for every single garment type.</p>
+            </div>
+            <div class="grid-cell phone-zone">
+                <!-- Anchor zone for phone (right) -->
+                <div class="phone-anchor" id="anchor-sorting"></div>
+            </div>
+        </section>
+
+        <!-- Section 5: Ironing & Folding -->
+        <section id="section-ironing" class="grid-section">
+            <div class="grid-cell phone-zone">
+                <!-- Anchor zone for phone (left) -->
+                <div class="phone-anchor" id="anchor-ironing"></div>
+            </div>
+            <div class="grid-cell content-zone">
+                <span class="section-tag">STEP 05 / IRONING &amp; FOLDING</span>
+                <h2 class="kinetic-text">Ironing &amp; Folding</h2>
+                <p>Garments are steam-pressed at 140&deg;C for crisp crease alignment, and folded with robotic precision to ensure ready-to-wear freshness.</p>
+            </div>
+        </section>
+
+        <!-- Section 6: Stain & Quality Check -->
+        <section id="section-quality" class="grid-section">
+            <div class="grid-cell content-zone">
+                <span class="section-tag">STEP 06 / QUALITY CHECK</span>
+                <h2 class="kinetic-text">Stain &amp; Quality Check</h2>
+                <p>A dedicated auditor performs a final check under high-intensity light to confirm absolute stain removal and fiber health before approval.</p>
+            </div>
+            <div class="grid-cell phone-zone">
+                <!-- Anchor zone for phone (right) -->
+                <div class="phone-anchor" id="anchor-quality"></div>
+            </div>
+        </section>
+
+        <!-- Section 7: Packing -->
+        <section id="section-packing" class="grid-section">
+            <div class="grid-cell phone-zone">
+                <!-- Anchor zone for phone (left) -->
+                <div class="phone-anchor" id="anchor-packing"></div>
+            </div>
+            <div class="grid-cell content-zone">
+                <span class="section-tag">STEP 07 / PACKING</span>
+                <h2 class="kinetic-text">Packing</h2>
+                <p>Garments are neatly placed on recycled hangers, wrapped in premium paper, and secured with a biodegradable dust shield.</p>
+            </div>
+        </section>
+
+        <!-- Section 8: Transit -->
+        <section id="section-transit" class="grid-section">
+            <div class="grid-cell content-zone">
+                <span class="section-tag">STEP 08 / TRANSIT</span>
+                <h2 class="kinetic-text">Out for Delivery</h2>
+                <p>Track your driver's real-time coordinate updates as they head back to your address. Fully contactless drop-off options with live notifications.</p>
+            </div>
+            <div class="grid-cell phone-zone">
+                <!-- Anchor zone for phone (right) -->
+                <div class="phone-anchor" id="anchor-transit"></div>
+            </div>
+        </section>
+
+        <!-- Section 9: Delivery -->
+        <section id="section-delivery" class="grid-section">
+            <div class="grid-cell phone-zone">
+                <!-- Anchor zone for phone (left) -->
+                <div class="phone-anchor" id="anchor-delivered"></div>
+            </div>
+            <div class="grid-cell content-zone">
+                <span class="section-tag">STEP 09 / DELIVERY</span>
+                <h2 class="kinetic-text">Delivered</h2>
+                <p>Your clean, pressed, and beautifully packed laundry is delivered back to your hands in under 2 hours.</p>
+            </div>
+        </section>
+
+        <!-- Section 5: Wave Playground (Make Me Pulse style) -->
+        <section id="section-playground" class="grid-section full-width">
+            <div class="grid-cell playground-container">
+                <canvas id="playground-canvas"></canvas>
+                <div class="playground-overlay">
+                    <span class="section-tag">INTERACTIVE / STRESS-FIELD</span>
+                    <h2>Feel the Flow</h2>
+                    <p>Drag or move your cursor across the wave field to interact with SwiftWash's fluid logistics algorithms.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Showcase Info Banner -->
+        <section id="section-showcase-info" class="grid-section full-width">
+            <div class="grid-cell content-zone" style="text-align: center; align-items: center; position: relative; overflow: visible;">
+                <span class="section-tag">PREMIUM CARE // ZERO COMPROMISE</span>
+                <h2 class="kinetic-text">Washed, Dried, and Delivered.</h2>
+                <p style="text-align: center; margin-bottom: 20px;">Experience laundry redesigned from the ground up for speed, quality, and complete transparency.</p>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="grid-section footer-section">
+            <div class="grid-cell footer-brand">
+                <h2><span style="color: var(--neon-cyan);">Swift</span><span style="color: var(--neon-green);">Wash</span></h2>
+                <p>&copy; 2026 SwiftWash Laundry. All rights reserved.</p>
+            </div>
+            <div class="grid-cell footer-links">
+                <div class="link-group">
+                    <strong>APPLICATIONS</strong>
+                    <a href="https://storage.googleapis.com/swiftwash-v0-1.firebasestorage.app/apks/swiftwash.apk">Customer App (APK)</a>
+                    <a href="https://storage.googleapis.com/swiftwash-v0-1.firebasestorage.app/apks/swiftwash-operator.apk">Operator App (APK)</a>
+                </div>
+                <div class="link-group">
+                    <strong>LEGAL</strong>
+                    <a href="/privacy_policy.html">Privacy Policy</a>
+                    <a href="/terms_conditions.html">Terms of Service</a>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- Dedicated Mobile Layout (active only on screen widths <= 991px) -->
+    <div class="mobile-layout-container">
+        <!-- Sticky Mobile Header -->
+        <div class="mobile-header">
+            <div class="app-header">
+                <span class="app-logo">
+                    <img src="./s_logo.png" alt="S Logo" style="width: 100%; height: 100%; object-fit: contain;">
+                </span>
+                <span class="app-title"><span style="color: var(--neon-cyan);">Swift</span><span style="color: var(--neon-green);">Wash</span></span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <button id="mobile-theme-toggle" class="theme-toggle-btn" style="position: static; width: 40px; height: 40px; font-size: 16px; margin: 0;">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+                <button id="mobile-menu-btn" class="mobile-menu-btn" style="width: 40px; height: 40px; background: transparent; border: none; color: var(--text-primary); display: flex; align-items: center; justify-content: center; font-size: 20px; padding: 0;">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Sticky Chrome Tabs Navigation -->
+        <div class="mobile-tabs-container">
+            <div class="mobile-tabs-scroll">
+                <div class="mobile-tab" data-step="0">Dispatch</div>
+                <div class="mobile-tab" data-step="1">Pickup</div>
+                <div class="mobile-tab" data-step="2">Washing</div>
+                <div class="mobile-tab" data-step="3">Sorting</div>
+                <div class="mobile-tab" data-step="4">Ironing</div>
+                <div class="mobile-tab" data-step="5">Quality</div>
+                <div class="mobile-tab" data-step="6">Packing</div>
+                <div class="mobile-tab" data-step="7">Transit</div>
+                <div class="mobile-tab" data-step="8">Delivery</div>
+            </div>
+        </div>
+
+        <!-- Centered Mobile Phone Mockup Viewport -->
+        <div class="mobile-phone-viewport">
+            <div class="mobile-phone-bezel">
+                <div class="phone-screen" id="mobile-phone-screen">
+                    <!-- Static Screen Contents (Mobile Isolated) -->
+                    <div id="mobile-screen-hero" class="screen-state active">
+                        <div class="app-header">
+                            <span class="app-logo">
+                                <img src="./s_logo.png" alt="S Logo" style="width: 100%; height: 100%; object-fit: contain;">
+                            </span>
+                            <span class="app-title"><span style="color: var(--neon-cyan);">Swift</span><span style="color: var(--neon-green);">Wash</span></span>
+                        </div>
+                        <div class="app-hero">
+                            <h2>Laundry in<br><span class="highlight">10 Minutes*</span></h2>
+                            <p>Quick laundry with 2 hours turnaround</p>
+                        </div>
+                        <div class="app-card">
+                            <div class="input-mock">Enter mobile number</div>
+                            <button class="app-btn">Continue</button>
+                        </div>
+                    </div>
+
+                    <div id="mobile-screen-dispatch" class="screen-state">
+                        <div class="status-card" style="height: 25%; padding-top: 0; padding-bottom: 10px;">
+                            <div class="driver-info">
+                                <i class="fa-solid fa-location-dot" style="color: var(--neon-cyan);"></i>
+                                <div>
+                                    <strong>SwiftWash Store</strong>
+                                    <span style="color: var(--neon-cyan); font-weight: 700; font-size: 11px;">Available 2.0 km away</span>
+                                    <span class="facility-status" style="font-size: 8px; opacity: 0.5; display: block; font-family: var(--font-mono); margin-top: 2px;">NEURAL DISPATCH ACTIVE</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="mobile-dispatch-map" class="map-viewport" style="height: 75%;"></div>
+                    </div>
+
+                    <div id="mobile-screen-pickup" class="screen-state">
+                        <div id="mobile-pickup-map" class="map-viewport"></div>
+                        <div class="status-card">
+                            <div class="driver-info">
+                                <i class="fa-solid fa-truck-ramp-box"></i>
+                                <div>
+                                    <strong>Ramesh (Driver)</strong>
+                                    <span>Left for Pickup</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="mobile-screen-wash" class="screen-state">
+                        <div class="wash-status-container">
+                            <h3>Cleaning Cycle</h3>
+                            <div class="drum-container">
+                                <div class="drum-bezel"></div>
+                                <div class="drum-window">
+                                    <div class="drum-water"></div>
+                                    <div class="drum-clothes">
+                                        <i class="fa-solid fa-shirt item-1"></i>
+                                        <i class="fa-solid fa-socks item-2"></i>
+                                        <i class="fa-solid fa-socks item-3"></i>
+                                    </div>
+                                    <div class="drum-bubbles">
+                                        <div class="bubble b1"></div>
+                                        <div class="bubble b2"></div>
+                                        <div class="bubble b3"></div>
+                                        <div class="bubble b4"></div>
+                                        <div class="bubble b5"></div>
+                                    </div>
+                                </div>
+                                <div class="percentage-overlay">75%</div>
+                            </div>
+                            <p><i class="fa-solid fa-soap"></i> Washing &amp; Drying</p>
+                        </div>
+                    </div>
+
+                    <div id="mobile-screen-quality" class="screen-state">
+                        <div class="wash-status-container">
+                            <h3 style="font-size: 18px; margin-bottom: 5px;">Sorting &amp; Quality</h3>
+                            <svg class="step-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 50px; height: 50px; color: var(--neon-green); margin: 10px auto; display: block; filter: drop-shadow(0 0 8px rgba(74,174,90,0.4));">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                                <path d="m9 11 2 2 4-4" />
+                            </svg>
+                            <div class="quality-checklist" style="width: 100%; display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px;">
+                                <div class="check-item" style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 10px; border-radius: 8px;">
+                                    <i class="fa-solid fa-circle-check" style="color: var(--neon-green); font-size: 12px;"></i>
+                                    <span style="font-size: 11px;">Fabric Sorting Complete</span>
+                                </div>
+                                <div class="check-item" style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 10px; border-radius: 8px;">
+                                    <i class="fa-solid fa-circle-check" style="color: var(--neon-green); font-size: 12px;"></i>
+                                    <span style="font-size: 11px;">Stain &amp; Wash Audit Passed</span>
+                                </div>
+                                <div class="check-item" style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 10px; border-radius: 8px;">
+                                    <i class="fa-solid fa-circle-check" style="color: var(--neon-green); font-size: 12px;"></i>
+                                    <span style="font-size: 11px;">Precise Steam Folding</span>
+                                </div>
+                                <div class="check-item" style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 10px; border-radius: 8px;">
+                                    <i class="fa-solid fa-circle-notch fa-spin" style="color: var(--neon-cyan); font-size: 12px;"></i>
+                                    <span style="font-size: 11px;">Premium Eco-Packing...</span>
+                                </div>
+                            </div>
+                            <p style="font-size: 11px; color: #64748b; margin: 0;"><i class="fa-solid fa-square-poll-vertical"></i> Verification Pending</p>
+                        </div>
+                    </div>
+
+                    <div id="mobile-screen-sorting" class="screen-state">
+                        <div class="wash-status-container">
+                            <h3 style="font-size: 18px; margin-bottom: 5px;">Fabric Sorting</h3>
+                            <svg class="step-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 50px; height: 50px; color: var(--neon-cyan); margin: 10px auto; display: block; filter: drop-shadow(0 0 8px rgba(35,151,235,0.4));">
+                                <path d="M20.38 3.46L16 6.05V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3.05L3.62 3.46a1 1 0 0 0-1.37.37l-1 1.73a1 1 0 0 0 .37 1.37l3.4 2A6 6 0 0 0 5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6a6 6 0 0 0-.02-3.86l3.4-2a1 1 0 0 0 .37-1.37l-1-1.73a1 1 0 0 0-1.37-.37z" />
+                                <path d="M10 12h4" />
+                                <path d="M12 10l2 2-2 2" />
+                            </svg>
+                            <div class="quality-checklist" style="width: 100%; display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px;">
+                                <div class="check-item" style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 10px; border-radius: 8px;">
+                                    <i class="fa-solid fa-circle-check" style="color: var(--neon-green); font-size: 12px;"></i>
+                                    <span style="font-size: 11px;">Garments Inspected</span>
+                                </div>
+                                <div class="check-item" style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 10px; border-radius: 8px;">
+                                    <i class="fa-solid fa-circle-check" style="color: var(--neon-green); font-size: 12px;"></i>
+                                    <span style="font-size: 11px;">Whites &amp; Colors Separated</span>
+                                </div>
+                                <div class="check-item" style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 10px; border-radius: 8px;">
+                                    <i class="fa-solid fa-circle-notch fa-spin" style="color: var(--neon-cyan); font-size: 12px;"></i>
+                                    <span style="font-size: 11px;">Delicate Fabrics Sorting...</span>
+                                </div>
+                            </div>
+                            <p style="font-size: 11px; color: #64748b; margin: 0;"><i class="fa-solid fa-square-poll-vertical"></i> Sorting active</p>
+                        </div>
+                    </div>
+
+                    <div id="mobile-screen-ironing" class="screen-state">
+                        <div class="wash-status-container">
+                            <h3 style="font-size: 18px; margin-bottom: 5px;">Ironing &amp; Folding</h3>
+                            <svg class="step-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 50px; height: 50px; color: var(--neon-cyan); margin: 10px auto; display: block; filter: drop-shadow(0 0 8px rgba(35,151,235,0.4));">
+                                <path d="M2 18h20a1 1 0 0 0 1-1v-2a6 6 0 0 0-6-6H6a4 4 0 0 0-4 4v4z" />
+                                <path d="M5 10V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2" />
+                                <line x1="6" y1="21" x2="6" y2="20" />
+                                <line x1="12" y1="21" x2="12" y2="20" />
+                                <line x1="18" y1="21" x2="18" y2="20" />
+                            </svg>
+                            <div class="quality-checklist" style="width: 100%; display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px;">
+                                <div class="check-item" style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 10px; border-radius: 8px;">
+                                    <i class="fa-solid fa-circle-check" style="color: var(--neon-green); font-size: 12px;"></i>
+                                    <span style="font-size: 11px;">Steam Pressing Active</span>
+                                </div>
+                                <div class="check-item" style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 10px; border-radius: 8px;">
+                                    <i class="fa-solid fa-circle-check" style="color: var(--neon-green); font-size: 12px;"></i>
+                                    <span style="font-size: 11px;">Crease Alignment OK</span>
+                                </div>
+                                <div class="check-item" style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 10px; border-radius: 8px;">
+                                    <i class="fa-solid fa-circle-notch fa-spin" style="color: var(--neon-cyan); font-size: 12px;"></i>
+                                    <span style="font-size: 11px;">Meticulous Folding...</span>
+                                </div>
+                            </div>
+                            <p style="font-size: 11px; color: #64748b; margin: 0;"><i class="fa-solid fa-temperature-three-quarters"></i> 140&deg;C steam pressing</p>
+                        </div>
+                    </div>
+
+                    <div id="mobile-screen-packing" class="screen-state">
+                        <div class="wash-status-container">
+                            <h3 style="font-size: 18px; margin-bottom: 5px;">Eco Packing</h3>
+                            <svg class="step-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 50px; height: 50px; color: var(--neon-cyan); margin: 10px auto; display: block; filter: drop-shadow(0 0 8px rgba(35,151,235,0.4));">
+                                <path d="M6 20a4 4 0 0 1-4-4V7a4 4 0 0 1 4-4h12a4 4 0 0 1 4 4v9a4 4 0 0 1-4 4H6z" />
+                                <path d="M9 3v14a3 3 0 0 0 6 0V3" />
+                                <circle cx="12" cy="10" r="2" />
+                            </svg>
+                            <div class="quality-checklist" style="width: 100%; display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px;">
+                                <div class="check-item" style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 10px; border-radius: 8px;">
+                                    <i class="fa-solid fa-circle-check" style="color: var(--neon-green); font-size: 12px;"></i>
+                                    <span style="font-size: 11px;">Hanger Tags Attached</span>
+                                </div>
+                                <div class="check-item" style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 10px; border-radius: 8px;">
+                                    <i class="fa-solid fa-circle-check" style="color: var(--neon-green); font-size: 12px;"></i>
+                                    <span style="font-size: 11px;">Eco-friendly Wrapping</span>
+                                </div>
+                                <div class="check-item" style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 10px; border-radius: 8px;">
+                                    <i class="fa-solid fa-circle-notch fa-spin" style="color: var(--neon-cyan); font-size: 12px;"></i>
+                                    <span style="font-size: 11px;">Dust Shield Sealing...</span>
+                                </div>
+                            </div>
+                            <p style="font-size: 11px; color: #64748b; margin: 0;"><i class="fa-solid fa-box-open"></i> Packed for delivery</p>
+                        </div>
+                    </div>
+
+                    <div id="mobile-screen-transit" class="screen-state">
+                        <div id="mobile-delivery-map" class="map-viewport"></div>
+                        <div class="status-card">
+                            <div class="driver-info">
+                                <i class="fa-solid fa-motorcycle" style="color: var(--neon-cyan);"></i>
+                                <div>
+                                    <strong>Amit (Driver)</strong>
+                                    <span>Out for Delivery</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="mobile-screen-delivered" class="screen-state">
+                        <canvas id="mobile-confetti-canvas"></canvas>
+                        <div class="delivery-container" style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%;">
+                            <div class="app-logo" style="width: 50px; height: 50px; margin-bottom: 20px;">
+                                <img src="./s_logo.png" alt="S Logo" style="width: 100%; height: 100%; object-fit: contain;">
+                            </div>
+                            <div class="success-tick-svg-wrapper" style="width: 70px; height: 70px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center;">
+                                <svg class="checkmark-svg" viewBox="0 0 52 52" style="width: 70px; height: 70px; border-radius: 50%; display: block; stroke-width: 3; stroke: var(--neon-green); stroke-miterlimit: 10; box-shadow: inset 0 0 0 var(--neon-green); animation: fill-green .4s ease-in-out .4s forwards, scale-up .3s ease-in-out forwards;">
+                                    <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none" style="stroke-dasharray: 166; stroke-dashoffset: 166; stroke-width: 3; stroke-miterlimit: 10; stroke: var(--neon-green); fill: none; animation: stroke-anim .6s cubic-bezier(0.65, 0, 0.45, 1) forwards;" />
+                                    <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" style="transform-origin: 50% 50%; stroke-dasharray: 48; stroke-dashoffset: 48; stroke-width: 3; stroke: var(--neon-green); animation: stroke-anim .3s cubic-bezier(0.65, 0, 0.45, 1) .6s forwards;" />
+                                </svg>
+                            </div>
+                            <h3>Delivered!</h3>
+                            <p>Your garments are fresh &amp; folded</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Scroll Trigger Anchors to Drive Active Step Changes -->
+        <div class="mobile-scroll-trigger" id="m-trigger-1"></div>
+        <div class="mobile-scroll-trigger" id="m-trigger-2"></div>
+        <div class="mobile-scroll-trigger" id="m-trigger-3"></div>
+        <div class="mobile-scroll-trigger" id="m-trigger-4"></div>
+        <div class="mobile-scroll-trigger" id="m-trigger-5"></div>
+        <div class="mobile-scroll-trigger" id="m-trigger-6"></div>
+        <div class="mobile-scroll-trigger" id="m-trigger-7"></div>
+        <div class="mobile-scroll-trigger" id="m-trigger-8"></div>
+        <div class="mobile-scroll-trigger" id="m-trigger-9"></div>
+    </div>
+
+    <!-- Mobile Menu Drawer (slide-out from right - elevated to root body context) -->
+    <div class="mobile-drawer" id="mobile-drawer">
+        <div class="mobile-drawer-overlay" id="mobile-drawer-overlay"></div>
+        <div class="mobile-drawer-content">
+            <div class="mobile-drawer-header">
+                <h3>Menu</h3>
+                <button class="mobile-drawer-close" id="mobile-drawer-close">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="mobile-drawer-links">
+                <a href="https://storage.googleapis.com/swiftwash-v0-1.firebasestorage.app/apks/swiftwash.apk"><i class="fa-solid fa-download"></i> Customer App (APK)</a>
+                <a href="https://storage.googleapis.com/swiftwash-v0-1.firebasestorage.app/apks/swiftwash-operator.apk"><i class="fa-solid fa-download"></i> Operator App (APK)</a>
+                <a href="/privacy_policy.html"><i class="fa-solid fa-shield-halved"></i> Privacy Policy</a>
+                <a href="/terms_conditions.html"><i class="fa-solid fa-file-contract"></i> Terms of Service</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- CDN Libraries: GSAP, ScrollTrigger, Lenis Smooth Scroll, Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.19/bundled/lenis.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <!-- Main Logic -->
+    <script src="app.js"></script>
+</body>
+</html>

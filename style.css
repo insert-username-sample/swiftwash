@@ -1,0 +1,1233 @@
+/* 
+   =========================================
+   SwiftWash Premium Landing Page Style System
+   Design Style: Axel Van Hessche + Lusion Minimalist Grid
+   =========================================
+*/
+
+:root {
+    --bg-primary: #08090d;
+    --border-color: rgba(255, 255, 255, 0.08);
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --neon-cyan: #2397eb;
+    --neon-green: #4aae5a;
+    --neon-cyan-glow: rgba(35, 151, 235, 0.3);
+    --neon-green-glow: rgba(74, 174, 90, 0.2);
+    --card-bg: rgba(13, 16, 23, 0.75);
+    
+    --phone-bg: #0d0f12;
+    --phone-text: #ffffff;
+    --phone-casing: #121318;
+    
+    --font-heading: 'Outfit', sans-serif;
+    --font-body: 'Outfit', sans-serif;
+    --font-mono: 'Fira Code', monospace;
+}
+
+/* Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    cursor: none; /* Hide default cursor to use custom WebGL cursor */
+}
+
+body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    overflow-x: hidden;
+    line-height: 1.5;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Lenis Custom Smooth Scroll */
+html.lenis {
+    height: auto;
+}
+.lenis-smooth {
+    scroll-behavior: auto;
+}
+
+/* Lusion Interactive FX Overlay Canvas */
+#fx-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 90;
+}
+
+/* Custom smooth kinetic-text support */
+.kinetic-text span {
+    display: inline-block;
+    will-change: transform, letter-spacing;
+    transition: transform 0.12s ease-out, letter-spacing 0.12s ease-out;
+}
+
+/* Custom Interactive Cursor */
+#custom-cursor {
+    width: 12px;
+    height: 12px;
+    background-color: var(--neon-cyan);
+    border-radius: 50%;
+    position: fixed;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 10000;
+    transition: width 0.2s, height 0.2s, background-color 0.2s;
+    box-shadow: 0 0 10px var(--neon-cyan-glow);
+}
+
+/* Axel-style Bordered Grid Container */
+.layout-container {
+    width: 100%;
+    max-width: 1600px;
+    margin: 0 auto;
+    border-left: 1px solid var(--border-color);
+    border-right: 1px solid var(--border-color);
+    position: relative;
+    z-index: 1;
+}
+
+/* Grid Sections & Borders */
+.grid-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 100vh;
+    border-bottom: 1px solid var(--border-color);
+    position: relative;
+}
+
+.grid-section.full-width {
+    grid-template-columns: 1fr;
+}
+
+.grid-cell {
+    padding: 8vw 6vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-right: 1px solid var(--border-color);
+}
+
+.grid-cell:last-child {
+    border-right: none;
+}
+
+/* Typography */
+.section-tag {
+    font-family: var(--font-mono);
+    color: var(--neon-cyan);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    margin-bottom: 20px;
+}
+
+h1 {
+    font-family: var(--font-heading);
+    font-size: clamp(4rem, 8vw, 8.5rem);
+    font-weight: 900;
+    line-height: 0.9;
+    letter-spacing: -0.04em;
+    margin-bottom: 30px;
+    color: #ffffff;
+}
+
+h1.kinetic-text .char {
+    background: linear-gradient(135deg, #ffffff 30%, var(--neon-cyan) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+h2 {
+    font-family: var(--font-heading);
+    font-size: clamp(2.5rem, 5vw, 4.5rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    margin-bottom: 20px;
+}
+
+.lead-text {
+    font-size: clamp(1.1rem, 2vw, 1.4rem);
+    color: var(--text-secondary);
+    max-width: 600px;
+}
+
+p {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    max-width: 500px;
+}
+
+/* Phone Anchor zones (invisible, used to coordinate coordinate mappings) */
+.phone-anchor {
+    width: 100%;
+    height: 100%;
+    min-height: 400px;
+    position: relative;
+}
+
+/* Floating 9:16 Phone Mockup Bezel & Notches */
+#phone-container {
+    position: fixed;
+    width: 320px;
+    height: 680px; /* 40px taller to give screen content more vertical space */
+    pointer-events: none;
+    z-index: 100;
+    transform: translate(-50%, -50%);
+    top: 50%;
+    left: 75%; /* Starts in top-right area of hero */
+    perspective: 1000px;
+    transform-style: preserve-3d;
+}
+
+.phone-tilt-wrapper {
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    will-change: transform;
+}
+
+.phone-bezel {
+    width: 100%;
+    height: 100%;
+    background-color: var(--phone-casing); /* Real outer phone casing color */
+    border-radius: 40px; /* Outer corner radius */
+    position: relative;
+    padding: 10px; /* Frame padding now inside tilted element */
+    border: 2px solid rgba(255, 255, 255, 0.15); /* Casing border */
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7); /* Shadow tilts in sync */
+    transform-style: preserve-3d;
+    will-change: transform;
+}
+
+.phone-notch {
+    width: 110px;
+    height: 25px;
+    background-color: var(--phone-casing);
+    position: absolute;
+    top: 10px; /* Aligned with top edge of screen content */
+    left: 50%;
+    transform: translateX(-50%);
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+    z-index: 999;
+}
+
+.phone-screen {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    border-radius: 28px;
+    overflow: hidden;
+    transform-style: preserve-3d;
+    transform: translateZ(5px);
+}
+
+/* Screen States inside phone mockup */
+.screen-state {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    visibility: hidden;
+    display: none;
+    background-color: var(--phone-bg);
+    color: var(--phone-text);
+    flex-direction: column;
+    padding: 40px 20px 20px 20px; /* Leave space for notch */
+    transform-style: preserve-3d;
+    transform: translateZ(5px);
+}
+
+.screen-state.active {
+    opacity: 1;
+    visibility: visible;
+    display: flex;
+    z-index: 10;
+}
+
+/* Hero State UI Mock */
+#screen-hero, #mobile-screen-hero {
+    background: radial-gradient(circle at 50% 10%, #152536 0%, #0d0f12 70%);
+}
+
+.app-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 40px;
+}
+
+.app-logo {
+    width: 28px;
+    height: 28px;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.app-title {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.app-hero h2 {
+    font-size: 24px;
+    line-height: 1.1;
+    font-weight: 800;
+    margin-bottom: 8px;
+}
+
+.app-hero .highlight {
+    background: linear-gradient(135deg, var(--neon-cyan), var(--neon-green));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.app-hero p {
+    font-size: 12px;
+    color: #7a8b9e;
+}
+
+.app-card {
+    margin-top: auto;
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 16px;
+}
+
+.input-mock {
+    background-color: #060708;
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 12px;
+    color: #4a5a6a;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    margin-bottom: 12px;
+}
+
+.app-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--neon-cyan), #1b85d3);
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 12px;
+    box-shadow: 0 4px 12px rgba(35, 151, 235, 0.3);
+}
+
+/* Assigning State UI Mock */
+.app-loader-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.pulse-ring {
+    width: 80px;
+    height: 80px;
+    border: 2px solid var(--neon-cyan);
+    border-radius: 50%;
+    position: absolute;
+    animation: ring-pulse 1.8s infinite ease-out;
+}
+
+.pulse-center {
+    width: 60px;
+    height: 60px;
+    background-color: rgba(35, 151, 235, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--neon-cyan);
+    font-size: 20px;
+    margin-bottom: 24px;
+    position: relative;
+    z-index: 2;
+}
+
+.app-loader-container h3 {
+    font-size: 18px;
+    font-weight: 800;
+    margin-bottom: 6px;
+}
+
+.app-loader-container p {
+    font-size: 11px;
+    color: #64748b;
+}
+
+@keyframes ring-pulse {
+    0% { transform: scale(0.6); opacity: 1; }
+    100% { transform: scale(1.4); opacity: 0; }
+}
+
+/* Leaflet Map mock inside phone */
+.map-viewport {
+    width: 100%;
+    height: 70%;
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.status-card {
+    height: 30%;
+    display: flex;
+    align-items: center;
+    padding-top: 15px;
+}
+
+.driver-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 12px;
+    width: 100%;
+}
+
+.driver-info i {
+    font-size: 24px;
+    color: var(--neon-green);
+}
+
+.driver-info strong {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.driver-info span {
+    font-size: 11px;
+    color: #64748b;
+}
+
+/* Wash Status UI Mock */
+.wash-status-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.wash-status-container h3 {
+    font-size: 20px;
+    font-weight: 800;
+    margin-bottom: 24px;
+}
+
+/* Washing Machine Drum styles */
+.drum-container {
+    width: 140px;
+    height: 140px;
+    position: relative;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.drum-bezel {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 8px solid #5a6a80;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5), inset 0 2px 5px rgba(255,255,255,0.2);
+    z-index: 5;
+}
+
+.drum-window {
+    position: absolute;
+    width: 88%;
+    height: 88%;
+    border-radius: 50%;
+    background-color: #101c2c;
+    overflow: hidden;
+    z-index: 2;
+    border: 3px solid #1e293b;
+}
+
+.drum-water {
+    position: absolute;
+    bottom: -10px;
+    left: -20px;
+    width: 140%;
+    height: 60%;
+    background: linear-gradient(180deg, rgba(35, 151, 235, 0.45) 0%, rgba(27, 133, 211, 0.75) 100%);
+    border-radius: 40%;
+    animation: drum-wash-water 3s infinite linear;
+    z-index: 3;
+}
+
+.drum-clothes {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 4;
+    animation: drum-rotate 4s infinite linear;
+}
+
+.drum-clothes i {
+    position: absolute;
+    font-size: 20px;
+    color: #ffffff;
+    opacity: 0.8;
+}
+
+.drum-clothes .item-1 { top: 20px; left: 50px; transform: rotate(15deg); color: var(--neon-cyan); }
+.drum-clothes .item-2 { top: 50px; left: 80px; transform: rotate(-45deg); color: var(--neon-green); }
+.drum-clothes .item-3 { top: 70px; left: 30px; transform: rotate(110deg); color: #e2e8f0; }
+
+.drum-bubbles {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 4;
+}
+
+.bubble {
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.6);
+    border-radius: 50%;
+    bottom: 10px;
+    animation: bubble-rise 2s infinite ease-in-out;
+}
+
+.bubble.b1 { width: 6px; height: 6px; left: 30px; animation-delay: 0.2s; }
+.bubble.b2 { width: 8px; height: 8px; left: 50px; animation-delay: 0.8s; }
+.bubble.b3 { width: 5px; height: 5px; left: 70px; animation-delay: 0.4s; }
+.bubble.b4 { width: 7px; height: 7px; left: 90px; animation-delay: 1.2s; }
+.bubble.b5 { width: 9px; height: 9px; left: 40px; animation-delay: 1.5s; }
+
+.percentage-overlay {
+    position: absolute;
+    z-index: 10;
+    font-size: 24px;
+    font-weight: 900;
+    color: #ffffff;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+}
+
+#confetti-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Animations */
+@keyframes drum-rotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes drum-wash-water {
+    0% { transform: rotate(0deg) translateY(0); }
+    50% { transform: rotate(180deg) translateY(-8px); }
+    100% { transform: rotate(360deg) translateY(0); }
+}
+
+@keyframes bubble-rise {
+    0% { transform: translateY(0) scale(0.6); opacity: 0; }
+    50% { opacity: 0.9; }
+    100% { transform: translateY(-70px) scale(1.1); opacity: 0; }
+}
+
+.wash-status-container p {
+    font-size: 13px;
+    font-weight: 500;
+    color: #64748b;
+}
+
+/* Success / Delivered State UI Mock */
+.delivery-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.success-tick {
+    width: 70px;
+    height: 70px;
+    background-color: rgba(74, 174, 90, 0.1);
+    border: 2px solid var(--neon-green);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--neon-green);
+    font-size: 28px;
+    margin-bottom: 24px;
+    box-shadow: 0 0 20px var(--neon-green-glow);
+}
+
+.delivery-container h3 {
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 6px;
+}
+
+.delivery-container p {
+    font-size: 12px;
+    color: #64748b;
+}
+
+/* Wave Playground Container & Canvas (Footer Playground) */
+#section-playground {
+    min-height: 90vh;
+}
+
+.playground-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    padding: 0;
+}
+
+#playground-canvas {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: #050608;
+    z-index: 1;
+}
+
+.playground-overlay {
+    position: absolute;
+    top: 8vw;
+    left: 6vw;
+    z-index: 2;
+    pointer-events: none;
+    max-width: 500px;
+}
+
+/* Showcase Info Banner Styles */
+#section-showcase-info {
+    min-height: 50vh;
+}
+
+/* Footer Grid */
+.footer-section {
+    min-height: 40vh;
+}
+
+.footer-brand {
+    justify-content: space-between;
+}
+
+.footer-links {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+}
+
+.link-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.link-group strong {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: #4a5a6a;
+    letter-spacing: 0.1em;
+}
+
+.link-group a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.2s;
+}
+
+.link-group a:hover {
+    color: var(--neon-cyan);
+}
+
+/* Responsive Overrides */
+@media (max-width: 1024px) {
+    #phone-container {
+        display: none; /* Hide device mock on small screens/tablets */
+    }
+    
+    .grid-section {
+        grid-template-columns: 1fr !important;
+        min-height: auto;
+    }
+    
+    .grid-cell {
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+        padding: 50px 30px;
+    }
+    
+    .phone-zone {
+        display: none;
+    }
+}
+
+/* Custom Map Marker styles with pulsing rings */
+.map-pulse-marker {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+    animation: marker-pulse-ring 1.8s infinite ease-out;
+    font-size: 14px;
+}
+
+@keyframes marker-pulse-ring {
+    0% { box-shadow: 0 0 0 0px rgba(255, 255, 255, 0.4); }
+    100% { box-shadow: 0 0 0 14px rgba(255, 255, 255, 0); }
+}
+
+/* Premium Cell Hover glow */
+.grid-cell {
+    transition: background-color 0.4s, border-color 0.4s;
+}
+.grid-cell:hover {
+    background-color: rgba(255, 255, 255, 0.015);
+    border-color: rgba(35, 151, 235, 0.2);
+}
+
+/* Background SVG Scroll-Linked Trail */
+#scroll-trail-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: visible;
+}
+
+#scroll-trail-path {
+    stroke-width: 4px;
+    stroke-dasharray: 10000;
+    stroke-dashoffset: 10000;
+    will-change: stroke-dashoffset;
+}
+
+/* Play Reel Capsule Morph Animation */
+.play-reel-trigger-wrap {
+    width: 100%;
+    height: 60vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: visible;
+}
+
+.play-reel-pill {
+    width: 180px;
+    height: 60px;
+    border-radius: 30px;
+    background-color: var(--neon-cyan);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    z-index: 50;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 10px 30px rgba(35, 151, 235, 0.3);
+    will-change: width, height, border-radius, transform;
+}
+
+.play-text {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: #ffffff;
+    z-index: 2;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.play-reel-media {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    z-index: 1;
+    transition: opacity 0.5s ease;
+    background: radial-gradient(circle at center, #152536 0%, #08090d 100%);
+    pointer-events: none;
+}
+
+#play-reel-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* Left-to-Right Typography Sweep Reveal */
+.char-wrap {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: bottom;
+}
+
+.char {
+    display: inline-block;
+    transform: translateY(100%);
+    opacity: 0;
+    will-change: transform, opacity;
+}
+
+/* Floating Theme Toggle Button */
+.theme-toggle-btn {
+    position: fixed;
+    top: 30px;
+    right: 30px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    z-index: 1000;
+    pointer-events: auto;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.theme-toggle-btn:hover {
+    transform: scale(1.1);
+    border-color: var(--neon-cyan);
+}
+
+/* Light Theme Variables and Gradient overrides */
+body.light-theme {
+    --bg-primary: #ffffff;
+    --border-color: rgba(15, 23, 42, 0.08);
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --card-bg: rgba(255, 255, 255, 0.85);
+    
+    --phone-bg: #f8fafc;
+    --phone-text: #0f172a;
+    --phone-casing: #e2e8f0;
+    
+    /* Premium fluid pastel mesh gradient background */
+    background: radial-gradient(circle at 0% 0%, #fcc8d9 0%, transparent 50%),
+                radial-gradient(circle at 100% 0%, #b5f1f9 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, #bca0f0 0%, transparent 50%),
+                radial-gradient(circle at 0% 100%, #fffae6 0%, transparent 50%),
+                #c8e8ff;
+    background-attachment: fixed;
+}
+
+body.light-theme #screen-hero, body.light-theme #mobile-screen-hero {
+    background: radial-gradient(circle at 50% 10%, #dbeafe 0%, #f8fafc 70%);
+}
+
+body.light-theme .app-card {
+    background: #ffffff;
+    border-color: rgba(0, 0, 0, 0.08);
+}
+
+body.light-theme .input-mock {
+    background-color: #f1f5f9;
+    color: #94a3b8;
+    border-color: #e2e8f0;
+}
+
+body.light-theme .status-card {
+    background: #ffffff;
+    border-color: rgba(0, 0, 0, 0.08);
+    color: #0f172a;
+}
+
+body.light-theme .status-card span {
+    color: #64748b;
+}
+
+body.light-theme .phone-bezel {
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+body.light-theme h1.kinetic-text .char {
+    background: linear-gradient(135deg, #0f172a 30%, var(--neon-cyan) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+body.light-theme #playground-canvas {
+    background-color: #ffffff;
+}
+
+/* Character Branding Gradients (Dark Theme) */
+h1.kinetic-text.brand-title .char-swift {
+    background: linear-gradient(135deg, #ffffff 30%, var(--neon-cyan) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+h1.kinetic-text.brand-title .char-wash {
+    background: linear-gradient(135deg, #ffffff 30%, var(--neon-green) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Character Branding Gradients (Light Theme) */
+body.light-theme h1.kinetic-text.brand-title .char-swift {
+    background: linear-gradient(135deg, #0f172a 30%, var(--neon-cyan) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+body.light-theme h1.kinetic-text.brand-title .char-wash {
+    background: linear-gradient(135deg, #0f172a 30%, var(--neon-green) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* ==================================================
+   MOBILE VIEWPORT REDESIGN (Screens <= 991px)
+   ================================================== */
+.mobile-layout-container {
+    display: none;
+}
+
+@media (max-width: 991px) {
+    /* Hide desktop view elements completely */
+    .layout-container {
+        display: none !important;
+    }
+    #phone-container {
+        display: none !important;
+    }
+    .theme-toggle-btn {
+        display: none !important;
+    }
+    
+    /* Make custom HTML cursor invisible or reset to default on mobile */
+    #custom-cursor {
+        display: none !important;
+    }
+    * {
+        cursor: auto !important;
+    }
+
+    /* Show and style mobile-specific layout */
+    .mobile-layout-container {
+        display: block;
+        width: 100%;
+        min-height: 100vh;
+        background-color: var(--bg-primary);
+        position: relative;
+        padding-top: 130px; /* Offset for mobile header + tabs height */
+        box-sizing: border-box;
+        overflow-y: auto;
+        transition: background-color 0.3s ease;
+    }
+
+    /* Sticky Mobile Header */
+    .mobile-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 20px;
+        background-color: var(--bg-primary);
+        border-bottom: 1px solid var(--border-color);
+        z-index: 1010;
+        box-sizing: border-box;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        transition: background-color 0.3s ease, border-color 0.3s ease;
+        pointer-events: auto !important;
+    }
+    .mobile-menu-btn {
+        pointer-events: auto !important;
+        cursor: pointer !important;
+    }
+    .mobile-header .app-header {
+        margin: 0;
+    }
+
+    /* Sticky Chrome Tabs Bar */
+    .mobile-tabs-container {
+        position: fixed;
+        top: 60px;
+        left: 0;
+        width: 100%;
+        height: 50px;
+        background-color: var(--bg-primary);
+        border-bottom: 1px solid var(--border-color);
+        z-index: 1009;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        box-sizing: border-box;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+    /* Hide scrollbars on tabs row */
+    .mobile-tabs-container::-webkit-scrollbar {
+        display: none;
+    }
+    .mobile-tabs-container {
+        scrollbar-width: none;
+    }
+    .mobile-tabs-scroll {
+        display: flex;
+        height: 100%;
+        padding: 0 10px;
+        align-items: center;
+    }
+
+    /* Angled/Clean Tab Item styling (similar to Chrome tabs) */
+    .mobile-tab {
+        padding: 0 18px;
+        height: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-secondary);
+        white-space: nowrap;
+        position: relative;
+        border-radius: 12px 12px 0 0;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        opacity: 0.7;
+    }
+    .mobile-tab.active {
+        color: var(--text-primary);
+        opacity: 1;
+        background-color: rgba(255, 255, 255, 0.05);
+    }
+    body.light-theme .mobile-tab.active {
+        background-color: rgba(0, 0, 0, 0.04);
+    }
+    .mobile-tab.active::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 15%;
+        width: 70%;
+        height: 3px;
+        background: linear-gradient(90deg, var(--neon-cyan), var(--neon-green));
+        border-radius: 2px;
+    }
+
+    /* Fixed/Centered Phone Viewport on Mobile */
+    .mobile-phone-viewport {
+        position: fixed;
+        top: 130px;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 85vw;
+        max-width: 310px;
+        height: calc(100vh - 170px);
+        max-height: 600px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        box-sizing: border-box;
+    }
+    .mobile-phone-bezel {
+        width: 100%;
+        height: 100%;
+        background-color: var(--phone-casing);
+        border-radius: 36px;
+        padding: 8px;
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+        position: relative;
+        overflow: hidden;
+        box-sizing: border-box;
+        transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+    body.light-theme .mobile-phone-bezel {
+        border-color: rgba(0, 0, 0, 0.1);
+    }
+    
+    .mobile-phone-bezel .phone-screen {
+        border-radius: 28px;
+    }
+
+    /* Mobile Menu Drawer */
+    .mobile-drawer {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        z-index: 9999;
+        display: none;
+        pointer-events: auto !important;
+    }
+    .mobile-drawer.active {
+        display: block;
+    }
+    
+    .mobile-scroll-trigger {
+        width: 100%;
+        height: 100vh;
+        pointer-events: none;
+        visibility: hidden;
+    }
+    .mobile-drawer-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: auto !important;
+    }
+    .mobile-drawer.active .mobile-drawer-overlay {
+        opacity: 1;
+    }
+    .mobile-drawer-content {
+        position: absolute;
+        top: 0;
+        right: -280px;
+        width: 280px;
+        height: 100%;
+        background-color: var(--card-bg);
+        border-left: 1px solid var(--border-color);
+        padding: 30px 20px;
+        display: flex;
+        flex-direction: column;
+        transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: -10px 0 30px rgba(0, 0, 0, 0.25);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        pointer-events: auto !important;
+    }
+    .mobile-drawer.active .mobile-drawer-content {
+        right: 0;
+    }
+    .mobile-drawer-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 40px;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 15px;
+    }
+    .mobile-drawer-header h3 {
+        font-size: 18px;
+        font-weight: 700;
+    }
+    .mobile-drawer-close {
+        background: transparent;
+        border: none;
+        color: var(--text-primary);
+        font-size: 20px;
+        cursor: pointer;
+    }
+    .mobile-drawer-links {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    .mobile-drawer-links a {
+        color: var(--text-primary);
+        text-decoration: none;
+        font-size: 15px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        border-radius: 8px;
+        background-color: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        transition: all 0.2s ease;
+    }
+    .mobile-drawer-links a:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+        border-color: var(--neon-cyan);
+    }
+    .mobile-drawer-links a i {
+        color: var(--neon-cyan);
+    }
+}
+
+/* Success SVG Checkmark Animations */
+@keyframes stroke-anim {
+    100% {
+        stroke-dashoffset: 0;
+    }
+}
+@keyframes scale-up {
+    0%, 100% {
+        transform: none;
+    }
+    50% {
+        transform: scale3d(1.1, 1.1, 1);
+    }
+}
+@keyframes fill-green {
+    100% {
+        box-shadow: inset 0 0 0 40px rgba(74, 174, 90, 0.1);
+    }
+}
